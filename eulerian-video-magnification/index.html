@@ -33,24 +33,85 @@
             <p>We construct the Laplacian pyramid by repeatedly downsampling each frame of the video, then rescaling all the downsampled frames to the original size. Because both downsampling ignores the channel dimension, we merge the time dimension with the channel dimension to allow clean vectorization, and restore the time dimension afterwards.</p>
             
             
-            <h2 align="left">Part 2. Temporal Filtering</h2>
-            <p>To magnify the specific temporal frequencies, we perform a 1D Fourier transform on the time dimension. We then index the frequencies with a magnitude in the range we want, and scale them by a factor, chosen to be <b>3</b>. Finally, we transform back and collapse the stack. The process is vectorized by collapsing the Laplacian stack dimension and the entire image dimension into a single batch dimension, which is then restored after the Fourier transform back.</p>
+            <h2 align="left">Part 2. Temporal Filtering + Part 3. Amplification + Part 4. Reconsturction</h2>
+            <p>To magnify the specific temporal frequencies, we create a laplacian stack for each frame, and then use scipy.signal.butter to filter along the time domain for each layer of the laplacian stack. Then we attenuate based on a magnification factor and alpha. Finally, we reconstruct the Laplacian Stack to get the following results.</p>
             
-            <p>Following are results of <b>baby2.mp4</b> and <b>face.mp4</b>, magnifying the frequencies between <b>0.4</b> and <b>40 Hz</b>.</p>
+            <p>Following are results of <b>baby2.mp4</b>, <b>face.mp4</b>, and <b>wrist.mp4</b>, magnifying the frequencies between <b>0.4</b> and <b>3.0 Hz</b>.</p>
             <div align="middle">
                 <table>
                     <tr>
                         <td>
                             <img src="images/baby2.gif" align="middle" height="360px"/>
-                            <figcaption align="middle">Magnified Baby 2.</figcaption>
+                            <figcaption align="middle">Magnified Baby 2. Frequency Range=(0.83, 3) Hz, Alpha=150, MagnificationFactor=1</figcaption>
                         </td>
                         <td>
                             <img src="images/face.gif" align="middle" height="360px"/>
-                            <figcaption align="middle">Magnified Face.</figcaption>
+                            <figcaption align="middle">Magnified Face. Frequency Range=(0.83, 3) Hz, Alpha=150, MagnificationFactor=1 </figcaption>
+                        </td>
+                        <td>
+                            <img src="images/wrist.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Wrist. Frequency Range=(0.4, 3.0) Hz, Alpha=150, MagnificationFactor=1 </figcaption>
                         </td>
                     </tr>
                 </table>
             </div>
+
+            <h2 align="left">Bells and Whistles: Fourier Analysis before Attenuation</h2>
+            <p>In the following, we analyze the FFT of the pixel (0,0) at the first laplacian layer for the red channel of the face video.</p>
+            <img src="images/fft_before.png" align="middle" height="360px"/>
+
+            <h2 align="left">Bells and Whistles: Fourier Analysis After Attenuation</h2>
+            <p>In the following, we analyze the FFT of the pixel (0,0) at the first laplacian layer for the red channel of the face video after attenuating.</p>
+            <img src="images/fft_after.png" align="middle" height="360px"/>
+
+            <h2 align="left">Bells and Whistles: Trying out difference sets of parameters</h2>
+            <p>To magnify the specific temporal frequencies, we create a laplacian stack for each frame, and then use scipy.signal.butter to filter along the time domain for each layer of the laplacian stack. Then we attenuate based on a magnification factor and alpha. Finally, we reconstruct the Laplacian Stack to get the following results.</p>
+            
+            <p>Following are results of <b>baby2.mp4</b>, <b>face.mp4</b>, and <b>wrist.mp4</b>, magnifying the frequencies between [0.2, 5.0], alpha = 100, magnification factor = 1.</p>
+            <div align="middle">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="images/baby2_1.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Baby 2. Frequency Range=(0.2, 5.0) Hz, Alpha=100, MagnificationFactor=1</figcaption>
+                        </td>
+                        <td>
+                            <img src="images/face_1.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Face. Frequency Range=(0.2, 5.0) Hz, Alpha=100, MagnificationFactor=1 </figcaption>
+                        </td>
+                        <td>
+                            <img src="images/wrist_1.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Wrist. Frequency Range=(0.2, 5.0) Hz, Alpha=100, MagnificationFactor=1 </figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div> 
+
+            <p>Following are results of <b>baby2.mp4</b>, <b>face.mp4</b>, and <b>wrist.mp4</b>, magnifying the frequencies between [0.83, 14.0] Hz, alpha=200, magnification_factor=2.</p>
+            
+            <div align="middle">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="images/baby2_2.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Baby 2. Frequency Range=(0.83, 14.0) Hz, Alpha=200, MagnificationFactor=1</figcaption>
+                        </td>
+                        <td>
+                            <img src="images/face_2.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Face. Frequency Range=(0.83, 14.0) Hz, Alpha=200, MagnificationFactor=1 </figcaption>
+                        </td>
+                        <td>
+                            <img src="images/wrist_2.gif" align="middle" height="360px"/>
+                            <figcaption align="middle">Magnified Wrist. Frequency Range=(0.83, 14.0) Hz, Alpha=200, MagnificationFactor=1 </figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div> 
+
+            <h2 align="left">Bells and Whistles: Augmenting Lower Amplitudes</h2>
+            <p>We augment lower frequencies (0.3, 1.0) Hz where alpha is 300 and magnification factor is 2 for <b>baby.mp4</b> We see that we augment the breathing.</p>
+            <img src="images/baby.gif" align="middle" height="360px"/>
+            
         </div>
     </body>
 </html>
