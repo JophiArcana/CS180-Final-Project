@@ -1,3 +1,3 @@
 Everything should out of box.
-Run GDF.ipynb
+Run main.ipynb
 writeup found in index.html
